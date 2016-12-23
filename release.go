@@ -2,6 +2,7 @@
 
 package sexp
 
+// DEBUG indicates whether this package is in debug mode.
 const DEBUG = false
 
 var _TABCOUNT uint32

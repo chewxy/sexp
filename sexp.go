@@ -26,6 +26,7 @@ type List []Sexp
 // List will always return false, even if it is empty
 func (s List) IsLeaf() bool { return false }
 
+// LeafCount returns the total number of leaves the s-expression has.
 func (s List) LeafCount() (retVal int) {
 	for _, child := range s {
 		retVal += child.LeafCount()

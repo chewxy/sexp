@@ -104,6 +104,7 @@ func (p *Parser) Run() {
 	// }
 }
 
+// Error returns the error encountered when parsing, if any.
 func (p *Parser) Error() error { return p.err }
 
 func (p *Parser) next() rune {

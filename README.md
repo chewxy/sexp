@@ -20,6 +20,12 @@ The reason for this is mainly historical. I have a large number of libraries whi
 ### 3. Your definition of "Reader" is weird. 
 Yes. It is. `AtomReader` reads a string and returns a `Atom`. It doesn't read the same way as `io.Reader` does. It's retained the `Reader` suffix because of historical reasons. As an aside, wouldn't it be nice if we could do this: `go:generate reverseStringer --type=...`, kinda like a `deriving Read` in  Haskell.
 
+### 4. Linecounts and  stuff would be nice, especially for error reporting
+Yes. It would be. I started writing it with those in mind but ended up not having them due to time constraints. Never really went back to adding it. Feel free to send a pull request for that.
+
+### 5. Comments are not supported??!!!
+Yes. For now. The basics for handling comments are in the code. I just never finished it. Feel free to send a pull request.
+
 # Contributing 
 
 1. File an issue on github if you find any.
