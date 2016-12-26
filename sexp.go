@@ -1,7 +1,11 @@
 // package sexp provides the data structure and parser for s-expressions in Go.
 package sexp
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+	"strings"
+)
 
 // Sexp is the interface representing a S-expression node
 type Sexp interface {
@@ -104,6 +108,46 @@ func (s *Strict) Last() *Strict {
 			return child.Last()
 
 		}
+		child := NewStrict(s.child)
+		s.child = child
+		return child
 	}
 	return s
+}
+
+// ParseString is a convenience function to parse a string into a []Sexp. It doesn't use strict parsing.
+func ParseString(s string) ([]Sexp, error) {
+	p := NewParser(strings.NewReader(s), false)
+
+	var sexps []Sexp
+	done := make(chan struct{})
+	go func() {
+		for expr := range p.Output {
+			sexps = append(sexps, expr)
+		}
+		done <- struct{}{}
+	}()
+
+	p.Run()
+	<-done
+
+	return sexps, p.err
+}
+
+func Parse(r io.Reader) ([]Sexp, error) {
+	p := NewParser(r, false)
+
+	var sexps []Sexp
+	done := make(chan struct{})
+	go func() {
+		for expr := range p.Output {
+			sexps = append(sexps, expr)
+		}
+		done <- struct{}{}
+	}()
+
+	p.Run()
+	<-done
+
+	return sexps, p.err
 }

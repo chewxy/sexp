@@ -333,11 +333,20 @@ func addChild(parent, child Sexp, strict bool) (retVal Sexp) {
 		} else {
 			child = &Strict{Sexp: child, parent: parent}
 		}
+		logf("Last %v", p.Last())
+
+		// return addChild(p.Last(), child, strict)
 
 		p.Last().child = child
 		return p
+	case dummy:
+		if strict {
+			childS := NewStrict(child)
+			return childS
+		}
+		return List{child}
 	}
-	panic("Unreachable")
+	panic(fmt.Sprintf("Unreachable. Parent: %v, child %v", parent, child))
 }
 
 func combine(sexps []Sexp, cur Sexp, strict bool) Sexp {
@@ -354,6 +363,8 @@ func combine(sexps []Sexp, cur Sexp, strict bool) Sexp {
 	default:
 		if strict {
 			for i := len(sexps) - 1; i >= 0; i-- {
+				logf("cur: %v", cur)
+				logf("parent %v", sexps[i])
 				cur = addChild(sexps[i], cur, strict)
 			}
 			return cur

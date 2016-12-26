@@ -18,15 +18,18 @@ var examples = []string{
 	`,
 
 	"(lambda x (f x)) (lambda x (f x))",
+	"(chartRule ROOT ((what wh) (is vbz) EXPR (? fullstop)) (Same))",
 }
 
 var corrects = []string{
 	"(lambda x (f x))",
 	"(defun factorial x (if (zerop x) 1 (* x (factorial (- x 1)))))",
 	"(lambda x (f x)) (lambda x (f x))",
+
+	"(chartRule ROOT ((what wh) (is vbz) EXPR (? fullstop)) Same)",
 }
 
-func TestParse(t *testing.T) {
+func TestParser(t *testing.T) {
 	var buf bytes.Buffer
 	for i, ex := range examples {
 		p := NewParser(strings.NewReader(ex), false)
@@ -66,18 +69,16 @@ func TestParse(t *testing.T) {
 			t.Errorf("Example %d Expected %q. Got %q", i, corrects[i], s)
 		}
 		buf.Reset()
-
-		// if fmt.Sprintf("%s", p.current) != corrects[i] {
-		//
-		// }
 	}
 }
 
 var strictCorrects = []string{
 	"(lambda (x (f x)))",
 
-	"(defun (factorial (x (if (zerop (1 (* (x (factorial (- (x 1)))))))))))",
+	"(defun (factorial (x (if (zerop (x (1 (* (x (factorial (- (x 1))))))))))))",
 	"(lambda (x (f x))) (lambda (x (f x)))",
+
+	"(chartRule (ROOT (what (wh (is (vbz (EXPR (? (fullstop (Same))))))))))",
 }
 
 func TestParseStrict(t *testing.T) {
@@ -120,5 +121,59 @@ func TestParseStrict(t *testing.T) {
 			t.Errorf("Example %d Expected %q. Got %q", i, strictCorrects[i], s)
 		}
 		buf.Reset()
+	}
+}
+
+func TestParseString(t *testing.T) {
+	var buf bytes.Buffer
+	for i, ex := range examples {
+		sexps, err := ParseString(ex)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		for i, s := range sexps {
+			if i < len(sexps)-1 {
+				fmt.Fprintf(&buf, "%v ", s)
+			} else {
+				fmt.Fprintf(&buf, "%v", s)
+			}
+		}
+
+		s := buf.String()
+
+		if s != corrects[i] {
+			t.Errorf("Example %d Expected %q. Got %q", i, strictCorrects[i], s)
+		}
+		buf.Reset()
+
+	}
+}
+
+func TestParse(t *testing.T) {
+	var buf bytes.Buffer
+	for i, ex := range examples {
+		sexps, err := Parse(strings.NewReader(ex))
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		for i, s := range sexps {
+			if i < len(sexps)-1 {
+				fmt.Fprintf(&buf, "%v ", s)
+			} else {
+				fmt.Fprintf(&buf, "%v", s)
+			}
+		}
+
+		s := buf.String()
+
+		if s != corrects[i] {
+			t.Errorf("Example %d Expected %q. Got %q", i, strictCorrects[i], s)
+		}
+		buf.Reset()
+
 	}
 }
