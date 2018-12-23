@@ -151,3 +151,31 @@ func Parse(r io.Reader) ([]Sexp, error) {
 
 	return sexps, p.err
 }
+
+type Cloner interface {
+	Clone() interface{}
+}
+
+func Clone(a Sexp) Sexp {
+	switch at := a.(type) {
+	case List:
+		retVal := make(List, len(at))
+		for i, s := range at {
+			retVal[i] = Clone(s)
+		}
+		return retVal
+	case *Strict:
+		newSexp := Clone(at.Sexp)
+		newParent := Clone(at.parent)
+		newChild := Clone(at.child)
+		return &Strict{
+			Sexp:   newSexp,
+			parent: newParent,
+			child:  newChild,
+		}
+	case Cloner:
+		return at.Clone().(Sexp)
+	default:
+		return a
+	}
+}
